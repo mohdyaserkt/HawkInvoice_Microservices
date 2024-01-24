@@ -1,0 +1,30 @@
+name: deploy-manifests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Authenticate with DigitalOcean
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Set Kubernetes Context
+        run: doctl kubernetes cluster kubeconfig save hawkinvoice
+
+      - name: Apply Kubernetes Manifests
+        run: kubectl apply -f infra/k8s && kubectl apply -f infra/k8s-prod
+
+
+

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenants-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenants
+  template:
+    metadata:
+      labels:
+        app: tenants
+    spec:
+      containers:
+        - name: tenants
+          image: yaserkt786/tenants:latest
+          env:
+            - name: MONGO_URI
+              value: "mongodb://tenants-mongo-srv:27017/hawkinvoice-tenants"
+            - name: NODEMAILER_EMAIL
+              value: "mail.hawkinvoice@gmail.com"
+            - name: NODEMAILER_PASSWORD
+              value: "pbeiwkdbvpvrnrbi"
+            - name: CRYPTO_KEY
+              value: "b353da10e895"
+            - name: JWT_ACCESS_SECRET
+              value: "b353da10e895"          
+            # - name: JWT_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: jwt-secret
+            #       key: JWT_KEY
+            # - name: NATS_CLIENT_ID
+            #   valueFrom:
+            #     fieldRef:
+            #       fieldPath: metadata.name
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: tenants-srv
+spec: 
+  selector:
+    app: tenants
+  ports:
+    - name: tenants
+      protocol: TCP
+      port: 4000
+      targetPort: 4000

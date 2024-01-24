@@ -1,0 +1,36 @@
+name: deploy-tenants
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/tenants/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Build the Docker image
+        run: cd services/tenants && docker build -t yaserkt786/tenants .  
+
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image to Docker Hub
+        run: docker push yaserkt786/tenants
+
+      - name: Authenticate with DigitalOcean
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Set Kubernetes Context
+        run: doctl kubernetes cluster kubeconfig save hawkinvoice
+
+      - name: Restart tenants Deployment
+        run: kubectl rollout restart deployment tenants-depl

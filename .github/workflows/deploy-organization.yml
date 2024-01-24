@@ -1,0 +1,37 @@
+name: deploy-organization
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/organization/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Build the Docker image
+        run: cd services/organization && docker build -t yaserkt786/organization .  
+        
+
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image to Docker Hub
+        run: docker push yaserkt786/organization
+
+      - name: Authenticate with DigitalOcean
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Set Kubernetes Context
+        run: doctl kubernetes cluster kubeconfig save hawkinvoice
+
+      - name: Restart organization Deployment
+        run: kubectl rollout restart deployment organization-depl

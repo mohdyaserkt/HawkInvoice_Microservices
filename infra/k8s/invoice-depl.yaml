@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoice-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invoice
+  template:
+    metadata:
+      labels:
+        app: invoice
+    spec:
+      containers:
+        - name: invoice
+          image: yaserkt786/invoice:latest
+          env:
+            - name: MONGO_URI
+              value: "invoice-mongo-srv"
+            - name: NODEMAILER_EMAIL
+              value: "mail.hawkinvoice@gmail.com"
+            - name: NODEMAILER_PASSWORD
+              value: "pbeiwkdbvpvrnrbi"
+            - name: CRYPTO_KEY
+              value: "b353da10e895"        
+            # - name: JWT_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: jwt-secret
+            #       key: JWT_KEY
+            # - name: NATS_CLIENT_ID
+            #   valueFrom:
+            #     fieldRef:
+            #       fieldPath: metadata.name
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: invoice-srv
+spec: 
+  selector:
+    app: invoice
+  ports:
+    - name: invoice
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
