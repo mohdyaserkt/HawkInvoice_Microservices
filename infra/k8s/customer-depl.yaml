@@ -15,24 +15,7 @@ spec:
       containers:
         - name: customer
           image: yaserkt786/customer:latest
-          env:
-            - name: MONGO_URI
-              value: "customer-mongo-srv"
-            - name: NODEMAILER_EMAIL
-              value: "mail.hawkinvoice@gmail.com"
-            - name: NODEMAILER_PASSWORD
-              value: "pbeiwkdbvpvrnrbi"
-            - name: CRYPTO_KEY
-              value: "b353da10e895"        
-            # - name: JWT_KEY
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: jwt-secret
-            #       key: JWT_KEY
-            # - name: NATS_CLIENT_ID
-            #   valueFrom:
-            #     fieldRef:
-            #       fieldPath: metadata.name
+          
 
 ---
 apiVersion: v1
